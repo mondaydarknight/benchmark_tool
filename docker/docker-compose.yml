@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  master:
+    image: locustio/locust
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HOST=${HOST}
+    volumes:
+      - ../scripts:/mnt/locust
+      - ../reports:/opt/reports
+    ports:
+     - '8089:8089'
+    command: "-f /mnt/locust/benchmark.py
+              -H ${HOST}
+              --master
+              -r 4
+              --run-time 2m
+              --expect-workers 3
+              --only-summary"
+  worker:
+    image: locustio/locust
+    environment:
+      - HOST=${HOST}
+    volumes:
+      - ../scripts:/mnt/locust
+      - ../reports:/opt/reports
+    command: "-H ${HOST}
+              -f /mnt/locust/benchmark.py
+              --worker
+              --master-host=master"
